@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FISI AP2 Lernkarten</title>
+<meta name="description" content="Lernkarten für die Abschlussprüfung Teil 2 – Fachinformatiker/-in Systemintegration (AO 2020)">
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="brand" id="homeBtn" aria-label="Startseite">
+    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect x="3" y="7" width="20" height="15" rx="3" fill="currentColor" opacity=".35"/><rect x="9" y="11" width="20" height="15" rx="3" fill="currentColor"/></svg>
+    <span>FISI&nbsp;AP2</span>
+  </button>
+  <nav class="topnav">
+    <button data-view="browse" class="navbtn">Alle Karten</button>
+    <button data-view="stats" class="navbtn">Fortschritt</button>
+    <button id="themeBtn" class="iconbtn" aria-label="Hell/Dunkel umschalten" title="Hell/Dunkel"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+  </nav>
+</header>
+
+<main id="app">
+  <!-- HOME -->
+  <section id="view-home" class="view">
+    <div class="hero">
+      <h1>Abschlussprüfung Teil&nbsp;2</h1>
+      <p class="sub">Fachinformatiker/-in Systemintegration · AO 2020 · <span id="cardCount"></span> Karten</p>
+      <div class="today">
+        <div><b id="dueCount">0</b><span>heute fällig</span></div>
+        <div><b id="newCount">0</b><span>neu</span></div>
+        <div><b id="masteredCount">0</b><span>gefestigt</span></div>
+      </div>
+    </div>
+
+    <h2 class="sectionh">Prüfungsbereich wählen</h2>
+    <div class="decks" id="decks"></div>
+
+    <h2 class="sectionh">Optionen</h2>
+    <div class="options">
+      <label class="switch"><input type="checkbox" id="optRecent"><span></span> Nur Themen ab 2024 &amp; neue Themen (W25/26, S26)</label>
+      <div class="topicbox">
+        <div class="topichead"><span>Themen</span><button class="link" id="topicAll">alle</button><button class="link" id="topicNone">keine</button></div>
+        <div class="chips" id="topics"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary big" id="startLearn">Lernen starten<small>fällige + neue Karten, neueste Themen zuerst</small></button>
+      <button class="btn big" id="startExam">Prüfungsmodus<small>20 zufällige Karten aus der Auswahl</small></button>
+    </div>
+
+    <p class="note">Die Karten sind in eigenen Worten formuliert und orientieren sich an den Themen der AP2-Prüfungen W2021 bis S2025 sowie den berichteten Themen aus W2025/26 und S2026. Die Herkunftsangabe (z.&nbsp;B. „S25“) zeigt, in welcher Prüfung ein Thema vorkam. Es sind keine Originalaufgaben. Dein Fortschritt wird nur in diesem Browser gespeichert.</p>
+  </section>
+
+  <!-- STUDY -->
+  <section id="view-study" class="view" hidden>
+    <div class="studybar">
+      <button class="link" id="quitStudy">← Beenden</button>
+      <div class="progress"><div id="progFill"></div></div>
+      <span id="progText"></span>
+    </div>
+    <article class="card" id="card" tabindex="0">
+      <div class="meta"><span id="cDeck" class="tag"></span><span id="cTopic" class="tag ghost"></span><span id="cSrc" class="srcs"></span></div>
+      <div class="q" id="cQ"></div>
+      <div class="a" id="cA" hidden></div>
+      <button class="btn primary reveal" id="revealBtn">Antwort zeigen <kbd>Leertaste</kbd></button>
+    </article>
+    <div class="rate" id="rateBar" hidden>
+      <button class="r r1" data-r="1">Nochmal<small>&lt; 1 min</small><kbd>1</kbd></button>
+      <button class="r r2" data-r="2">Schwer<small id="i2"></small><kbd>2</kbd></button>
+      <button class="r r3" data-r="3">Gut<small id="i3"></small><kbd>3</kbd></button>
+      <button class="r r4" data-r="4">Leicht<small id="i4"></small><kbd>4</kbd></button>
+    </div>
+    <div class="done" id="doneBox" hidden>
+      <h2>Geschafft 🎉</h2>
+      <p id="doneText"></p>
+      <div class="actions"><button class="btn primary" id="doneHome">Zur Übersicht</button><button class="btn" id="doneMore">Weitere Karten</button></div>
+    </div>
+  </section>
+
+  <!-- BROWSE -->
+  <section id="view-browse" class="view" hidden>
+    <div class="browsehead">
+      <input type="search" id="search" placeholder="Suchen, z. B. VLAN, RAID, Probezeit …" autocomplete="off">
+      <select id="browseDeck"><option value="">Alle Bereiche</option></select>
+    </div>
+    <p class="muted" id="browseCount"></p>
+    <div id="list"></div>
+  </section>
+
+  <!-- STATS -->
+  <section id="view-stats" class="view" hidden>
+    <h1>Fortschritt</h1>
+    <div id="statsBox"></div>
+    <h2 class="sectionh">Daten</h2>
+    <div class="actions">
+      <button class="btn" id="exportBtn">Fortschritt exportieren</button>
+      <label class="btn">Fortschritt importieren<input type="file" id="importFile" accept="application/json" hidden></label>
+      <button class="btn danger" id="resetBtn">Fortschritt zurücksetzen</button>
+    </div>
+    <p class="note">Tipp: Exportiere deinen Fortschritt, um ihn auf ein anderes Gerät zu übertragen.</p>
+  </section>
+</main>
+
+<script src="data/fisi1.js"></script>
+<script src="data/fisi2.js"></script>
+<script src="data/wiso.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
